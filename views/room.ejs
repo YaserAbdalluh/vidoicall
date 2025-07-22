@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= appName %> - Room <%= roomId %>
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Room: <%= roomId %>
+        </h1>
+        <div class="video-container">
+            <video id="local-video" autoplay muted playsinline></video>
+            <video id="remote-video" autoplay playsinline></video>
+        </div>
+        <div class="controls">
+            <button id="mute-btn">Mute</button>
+            <button id="video-btn">Stop Video</button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        const roomId = '<%= roomId %>';
+        init(roomId);
+    </script>
+</body>
+
+</html>
