@@ -5,13 +5,11 @@ const ejs = require('ejs');
 const { v4: uuidV4 } = require('uuid');
 
 const app = express();
-const PORT = process.env.PORT || 3001; 
- 
-// الإعدادات
+const PORT = process.env.PORT || 3001;
+
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
-// المسارات
 app.get('/', (req, res) => {
     res.redirect(`/${uuidV4()}`);
 });
@@ -23,12 +21,10 @@ app.get('/:room', (req, res) => {
     });
 });
 
-// بدء الخادم
 const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
 
-// إعداد Socket.io
 const io = socketio(server, {
     cors: {
         origin: "*",
@@ -36,23 +32,22 @@ const io = socketio(server, {
     }
 });
 
-// معالجة اتصالات Socket.io
 io.on('connection', socket => {
     socket.on('join-room', (roomId, userId) => {
         socket.join(roomId);
-
-        // إرسال إعلام لجميع المستخدمين في الغرفة ما عدا المستخدم الجديد
         socket.to(roomId).emit('user-connected', userId);
 
         socket.on('disconnect', () => {
-            // إرسال إعلام انفصال المستخدم
             socket.to(roomId).emit('user-disconnected', userId);
         });
 
-        // معالجة إشارات WebRTC
         socket.on('signal', (data) => {
-            // إرسال الإشارة إلى المستخدم الآخر في الغرفة
-            socket.to(roomId).emit('signal', data);
+            const { to } = data;
+            if (to) {
+                io.to(to).emit('signal', data);
+            } else {
+                socket.to(data.roomId).emit('signal', data);
+            }
         });
     });
 });
